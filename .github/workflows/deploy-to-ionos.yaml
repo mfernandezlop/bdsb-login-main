@@ -123,36 +123,3 @@ jobs:
           project-id: ${{ inputs.project-id }}
           branch-id: ${{ inputs.branch-id }}
           action: set-deployments-finished
-  
-  deploy-to-node-server:
-    needs: notify-deployment-finished
-    runs-on: ubuntu-latest
-    steps:
-      - name:  deploy-to-node
-        uses: actions/checkout@v3
-        with:
-          api-key: ${{ secrets.IONOS_API_KEY }}
-          service-host: api-eu.ionos.space
-          submodules: 'recursive'
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          api-key: ${{ secrets.IONOS_API_KEY }}
-          service-host: api-eu.ionos.space
-          project-id: ${{ inputs.project-id }}
-          branch-id: ${{ inputs.branch-id }}
-          deployment-id: ${{ matrix.deployment-id }}
-          deployment-info: ${{ steps.deployment.outputs.info }}
-          ssh-user: ${{ secrets[env.SSH_USERNAME_SECRET] }}
-          ssh-key: ${{ secrets.IONOS_SSH_KEY }}
-          node-version: 16.x
-          cache: npm
-      - name: Build Node assets
-        env:
-          CI: true
-          SITE_URL: https://IONOS_DEPLOY_NOW_SITE_URL:3000/
-        run: |
-          npm ci
-          npm run build
-          npm run start
